@@ -37,5 +37,6 @@ output application/json
 vars.employeeFound default {message:"Employee not found"}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="16376fb2-c96d-4599-bf97-6e9418874087" />
 	</flow>
 </mule>
