@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-all-employeeFlow" doc:id="9fc31755-734f-45ad-9f0c-fbe54ebba01e" >
+		<http:listener doc:name="Listener" doc:id="d3fa8582-794f-4900-aadf-ac25f4b4e39a" config-ref="HTTP_Listener_config" path="/employees"/>
+		<db:select doc:name="Select" doc:id="fe99b835-ad0f-453a-9e1b-69eb94dcfbbc" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from empoloyee]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="14fafa04-8d71-42b0-a5dc-1ea187f7c4b1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="abc_appFlow" doc:id="35344009-81e5-4ad9-abcc-c3e35f800ca6" >
+		<http:listener doc:name="Listener" doc:id="f6234860-f337-49af-9afa-dc5e361e30e2" config-ref="HTTP_Listener_config" path="/employee/{id}"/>
+		<db:select doc:name="Select" doc:id="62abf009-779c-4159-bf24-331926848f15" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from empoloyee where e_id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+  id: attributes.uriParams.id as Number
+}]]]></db:input-parameters>
+		</db:select>
+		<set-variable value="#[payload[0]]" doc:name="Set Variable" doc:id="981b93df-7789-4eaa-a676-00021064657a" variableName="employeeFound"/>
+		<ee:transform doc:name="Transform Message" doc:id="1eca7d1c-1e75-43a5-ae1d-b6fb739b4f59" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.employeeFound default {message:"Employee not found"}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
